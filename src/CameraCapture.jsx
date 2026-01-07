@@ -1,16 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 
-function CameraCapture({ label, name, onCapture }) {
+function CameraCapture({ label, name, onCapture, existingFile }) {
     const videoRef = useRef(null);
     const canvasRef = useRef(null);
     const streamRef = useRef(null);
 
     const [isOpen, setIsOpen] = useState(false);
-    const [preview, setPreview] = useState(null);
+    const [preview, setPreview] = useState(null); // captured or existing photo
+    const [showVideo, setShowVideo] = useState(true); // show camera stream
 
     // Open camera
     const openCamera = async () => {
         try {
+            // If existing file, show it first as preview
+            if (existingFile) {
+                setPreview(URL.createObjectURL(existingFile));
+                setShowVideo(false); // show preview, not live video initially
+            } else {
+                setShowVideo(true);
+            }
+
             const stream = await navigator.mediaDevices.getUserMedia({
                 video: { facingMode: { ideal: "environment" } },
             });
@@ -22,14 +31,13 @@ function CameraCapture({ label, name, onCapture }) {
         }
     };
 
-    // Safe camera close (prevents AbortError)
+    // Safe camera close
     const closeCamera = () => {
         try {
             if (videoRef.current) {
                 videoRef.current.pause();
                 videoRef.current.srcObject = null;
             }
-
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(track => {
                     if (track.readyState === "live") track.stop();
@@ -40,15 +48,14 @@ function CameraCapture({ label, name, onCapture }) {
             console.warn("Camera cleanup warning:", e);
         }
 
-        setPreview(null);
         setIsOpen(false);
+        setShowVideo(true);
     };
 
     // Capture image from video
     const capturePhoto = () => {
         const video = videoRef.current;
         const canvas = canvasRef.current;
-
         if (!video || !canvas) return;
 
         canvas.width = video.videoWidth;
@@ -59,6 +66,7 @@ function CameraCapture({ label, name, onCapture }) {
 
         const dataUrl = canvas.toDataURL("image/jpeg");
         setPreview(dataUrl);
+        setShowVideo(false); // hide video after capture
     };
 
     // Confirm captured photo
@@ -67,30 +75,29 @@ function CameraCapture({ label, name, onCapture }) {
             const res = await fetch(preview);
             const blob = await res.blob();
 
-            const file = new File([blob], `${name}.jpg`, {
-                type: "image/jpeg",
-            });
+            const file = new File([blob], `${name}.jpg`, { type: "image/jpeg" });
 
             onCapture(name, file);
             closeCamera();
         } catch (err) {
-            if (err.name !== "AbortError") {
-                console.error(err);
-            }
+            if (err.name !== "AbortError") console.error(err);
         }
     };
 
-    // Attach stream to video
+    // Attach stream to video when showVideo = true
     useEffect(() => {
-        if (isOpen && videoRef.current && streamRef.current) {
+        if (showVideo && isOpen && videoRef.current && streamRef.current) {
             videoRef.current.srcObject = streamRef.current;
             videoRef.current.play();
         }
-    }, [isOpen]);
+    }, [showVideo, isOpen]);
 
     // Cleanup on unmount
     useEffect(() => {
-        return () => closeCamera();
+        return () => {
+            if (preview && preview.startsWith("blob:")) URL.revokeObjectURL(preview);
+            closeCamera();
+        };
     }, []);
 
     return (
@@ -104,37 +111,37 @@ function CameraCapture({ label, name, onCapture }) {
                     <div style={modalStyle}>
                         <h3>{label}</h3>
 
-                        {!preview ? (
+                        {showVideo ? (
                             <>
                                 <video
                                     ref={videoRef}
                                     autoPlay
                                     playsInline
-                                    style={{
-                                        width: "100%",
-                                        borderRadius: "8px",
-                                        marginBottom: "8px",
-                                    }}
+                                    style={{ width: "100%", borderRadius: "8px", marginBottom: "8px" }}
                                 />
-                                <button type="button" onClick={capturePhoto}>Capture</button>
+                                <button type="button" onClick={capturePhoto}>
+                                    Capture
+                                </button>
                             </>
-                        ) : (
+                        ) : preview ? (
                             <>
                                 <img
                                     src={preview}
                                     alt="Preview"
-                                    style={{
-                                        width: "100%",
-                                        borderRadius: "8px",
-                                        marginBottom: "8px",
-                                    }}
+                                    style={{ width: "100%", borderRadius: "8px", marginBottom: "8px" }}
                                 />
-                                <button type="button" onClick={usePhoto}>Use Photo</button>
-                                <button type="button" onClick={() => setPreview(null)}>Retake</button>
+                                <button type="button" onClick={usePhoto}>
+                                    Use Photo
+                                </button>
+                                <button type="button" onClick={() => setShowVideo(true)}>
+                                    Retake
+                                </button>
                             </>
-                        )}
+                        ) : null}
 
-                        <button type="button" onClick={closeCamera}>Cancel</button>
+                        <button type="button" onClick={closeCamera}>
+                            Cancel
+                        </button>
                     </div>
                 </div>
             )}
@@ -145,10 +152,6 @@ function CameraCapture({ label, name, onCapture }) {
 }
 
 export default CameraCapture;
-
-/* =========================
-   Minimal Inline Styles
-========================= */
 
 const overlayStyle = {
     position: "fixed",

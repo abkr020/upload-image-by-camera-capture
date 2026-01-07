@@ -57,10 +57,10 @@ function App() {
       body: formPayload, // ✅ FormData
     });
   };
-const getPreviewUrl = (file) => {
-  if (!file) return null;
-  return URL.createObjectURL(file);
-};
+  const getPreviewUrl = (file) => {
+    if (!file) return null;
+    return URL.createObjectURL(file);
+  };
 
   return (
     <div className="form-container">
@@ -90,8 +90,8 @@ const getPreviewUrl = (file) => {
           name="aadharFrontPhoto"
           onCapture={handleCameraCapture}
         />
-<br />
-{"====="}
+        <br />
+        {"====="}
         {/* Aadhar Back */}
         <label htmlFor="aadharBackPhotoInput" >Aadhar Back</label>
         <input
@@ -101,33 +101,36 @@ const getPreviewUrl = (file) => {
           accept="image/*"
           name="aadharBackPhoto"
           onChange={handleFileChange}
-            style={{ display: "none" }}
+          style={{ display: "none" }}
 
         />
         <CameraCapture
           label="Aadhar Back"
           name="aadharBackPhoto"
           onCapture={handleCameraCapture}
+          existingFile={formData.aadharBackPhoto} // Pass existing file here
         />
-{/* Preview */}
-{console.log("b p",formData?.aadharBackPhoto)
-}
-{formData.aadharBackPhoto && (
-  <div style={{ marginTop: "8px" }}>
-    <img
-      src={URL.createObjectURL(formData.aadharBackPhoto)}
-      alt="Aadhar Back Preview"
-      style={{
-        width: "150px",
-        borderRadius: "6px",
-        border: "1px solid #ccc",
-        display: "block",
-        marginBottom: "4px",
-      }}
-    />
-    <span>{formData.aadharBackPhoto.name}</span>
-  </div>
-)}
+
+
+        {/* Preview */}
+        {console.log("b p", formData?.aadharBackPhoto)
+        }
+        {formData.aadharBackPhoto && (
+          <div style={{ marginTop: "8px" }}>
+            <img
+              src={URL.createObjectURL(formData.aadharBackPhoto)}
+              alt="Aadhar Back Preview"
+              style={{
+                width: "150px",
+                borderRadius: "6px",
+                border: "1px solid #ccc",
+                display: "block",
+                marginBottom: "4px",
+              }}
+            />
+            <span>{formData.aadharBackPhoto.name}</span>
+          </div>
+        )}
 
         <button type="submit">Submit</button>
       </form>

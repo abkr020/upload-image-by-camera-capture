@@ -1,0 +1,15 @@
+------WebKitFormBoundaryFH6FU62zml0uQlmI
+Content-Disposition: form-data; name="userName"
+
+ll
+------WebKitFormBoundaryFH6FU62zml0uQlmI
+Content-Disposition: form-data; name="aadharFrontPhoto"; filename="Amba_1472.JPG"
+Content-Type: image/jpeg
+
+
+------WebKitFormBoundaryFH6FU62zml0uQlmI
+Content-Disposition: form-data; name="aadharBackPhoto"; filename="WhatsApp Image 2026-01-02 at 23.33.31.jpeg"
+Content-Type: image/jpeg
+
+
+------WebKitFormBoundaryFH6FU62zml0uQlmI--

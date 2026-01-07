@@ -52,7 +52,15 @@ function App() {
     }
 
     console.log("FormData ready");
+    fetch("/api/upload", {
+      method: "POST",
+      body: formPayload, // ✅ FormData
+    });
   };
+const getPreviewUrl = (file) => {
+  if (!file) return null;
+  return URL.createObjectURL(file);
+};
 
   return (
     <div className="form-container">
@@ -82,20 +90,44 @@ function App() {
           name="aadharFrontPhoto"
           onCapture={handleCameraCapture}
         />
-
+<br />
+{"====="}
         {/* Aadhar Back */}
-        <label>Aadhar Back</label>
+        <label htmlFor="aadharBackPhotoInput" >Aadhar Back</label>
         <input
+          id="aadharBackPhotoInput"
+
           type="file"
           accept="image/*"
           name="aadharBackPhoto"
           onChange={handleFileChange}
+            style={{ display: "none" }}
+
         />
         <CameraCapture
           label="Aadhar Back"
           name="aadharBackPhoto"
           onCapture={handleCameraCapture}
         />
+{/* Preview */}
+{console.log("b p",formData?.aadharBackPhoto)
+}
+{formData.aadharBackPhoto && (
+  <div style={{ marginTop: "8px" }}>
+    <img
+      src={URL.createObjectURL(formData.aadharBackPhoto)}
+      alt="Aadhar Back Preview"
+      style={{
+        width: "150px",
+        borderRadius: "6px",
+        border: "1px solid #ccc",
+        display: "block",
+        marginBottom: "4px",
+      }}
+    />
+    <span>{formData.aadharBackPhoto.name}</span>
+  </div>
+)}
 
         <button type="submit">Submit</button>
       </form>

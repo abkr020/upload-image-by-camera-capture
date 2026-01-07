@@ -63,7 +63,12 @@ function CameraCapture({ label, name, onCapture }) {
 
             {isCameraOpen && (
                 <div className="camera-preview">
-                    <video ref={videoRef} autoPlay playsInline />
+                    <video
+                        ref={videoRef}
+                        autoPlay
+                        playsInline
+                        style={{ transform: "scaleX(-1)" }}
+                    />
                     <button type="button" onClick={capturePhoto}>Capture</button>
                     <button type="button" onClick={closeCamera}>Cancel</button>
                 </div>
@@ -71,6 +76,7 @@ function CameraCapture({ label, name, onCapture }) {
 
             <canvas ref={canvasRef} style={{ display: "none" }} />
         </div>
+
     );
 }
 

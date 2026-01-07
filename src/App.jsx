@@ -1,4 +1,5 @@
 import { useState } from "react";
+import CameraCapture from "./CameraCapture";
 import "./App.css";
 
 function App() {
@@ -28,80 +29,73 @@ function App() {
     }));
   };
 
+  const handleCameraCapture = (fieldName, file) => {
+    setFormData(prev => ({ ...prev, [fieldName]: file }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (
-      !formData.userName ||
-      !formData.aadharFrontPhoto ||
-      !formData.aadharBackPhoto
-    ) {
+    const { userName, aadharFrontPhoto, aadharBackPhoto } = formData;
+    if (!userName || !aadharFrontPhoto || !aadharBackPhoto) {
       alert("All fields are required");
       return;
     }
 
     const formPayload = new FormData();
-    formPayload.append("userName", formData.userName);
-    formPayload.append("aadharFrontPhoto", formData.aadharFrontPhoto);
-    formPayload.append("aadharBackPhoto", formData.aadharBackPhoto);
+    Object.entries(formData).forEach(([key, value]) => {
+      formPayload.append(key, value);
+    });
 
-    for (let [key, value] of formPayload.entries()) {
-  console.log(key, value);
-}
+    for (let pair of formPayload.entries()) {
+      console.log(pair[0], pair[1]);
+    }
 
-    console.log("FormData ready",formPayload);
-
-    // fetch("/api/upload", {
-    //   method: "POST",
-    //   body: formPayload, // ✅ FormData
-    // });
+    console.log("FormData ready");
   };
-
 
   return (
     <div className="form-container">
       <h2>User KYC Form</h2>
 
       <form onSubmit={handleSubmit}>
-        {/* Username */}
-        <div className="form-group">
-          <label htmlFor="userName">User Name</label>
-          <input
-            id="userName"
-            type="text"
-            name="userName"
-            value={formData.userName}
-            onChange={handleChange}
-            placeholder="Enter your name"
-            required
-          />
-        </div>
+        {/* User Name */}
+        <input
+          type="text"
+          name="userName"
+          value={formData.userName}
+          onChange={handleChange}
+          placeholder="Enter your name"
+          required
+        />
 
         {/* Aadhar Front */}
-        <div className="form-group">
-          <label htmlFor="aadharFrontPhoto">Aadhar Front Photo</label>
-          <input
-            id="aadharFrontPhoto"
-            type="file"
-            name="aadharFrontPhoto"
-            accept="image/*"
-            onChange={handleFileChange}
-            required
-          />
-        </div>
+        <label>Aadhar Front</label>
+        <input
+          type="file"
+          accept="image/*"
+          name="aadharFrontPhoto"
+          onChange={handleFileChange}
+        />
+        <CameraCapture
+          label="Aadhar Front"
+          name="aadharFrontPhoto"
+          onCapture={handleCameraCapture}
+        />
 
         {/* Aadhar Back */}
-        <div className="form-group">
-          <label htmlFor="aadharBackPhoto">Aadhar Back Photo</label>
-          <input
-            id="aadharBackPhoto"
-            type="file"
-            name="aadharBackPhoto"
-            accept="image/*"
-            onChange={handleFileChange}
-            required
-          />
-        </div>
+        <label>Aadhar Back</label>
+        <input
+          type="file"
+          accept="image/*"
+          name="aadharBackPhoto"
+          onChange={handleFileChange}
+        />
+        <CameraCapture
+          label="Aadhar Back"
+          name="aadharBackPhoto"
+          onCapture={handleCameraCapture}
+        />
 
         <button type="submit">Submit</button>
       </form>
